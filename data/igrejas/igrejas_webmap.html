@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        #map {
+            position: absolute;
+            top:      0;
+            left:     0;
+            bottom:   0;
+            right:    0;
+            width:    100%;
+            height:   100%
+          }
+          </style>
+        
+        <title>Leaflet Map</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/IgrejasPT_10km_novo_1.js"></script>
+        <script src="data/Hubdistance_2.js"></script>
+        <script src="data/Portugal_mainland_PT_census_3.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[36.582452163949796,-9.800],[42.30377116380055,-6.000]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiYW5kcmVrb3R6ZSIsImEiOiJja3oxeDBmNWoxaG5oMm9xazk0MDY2cDk4In0.4B7vARQHUA33kEUSylTCKw'
+            }).addTo(map);
+
+        function pop_IgrejasPT_10km_novo_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Name</strong><br />' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['denomination'] !== null ? autolinker.link(feature.properties['denomination'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_IgrejasPT_10km_novo_1_0() {
+            return {
+                pane: 'pane_IgrejasPT_10km_novo_1',
+                radius: 2.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(256,0,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_IgrejasPT_10km_novo_1');
+        map.getPane('pane_IgrejasPT_10km_novo_1').style.zIndex = 401;
+        map.getPane('pane_IgrejasPT_10km_novo_1').style['mix-blend-mode'] = 'normal';
+        var layer_IgrejasPT_10km_novo_1 = new L.geoJson(json_IgrejasPT_10km_novo_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_IgrejasPT_10km_novo_1',
+            layerName: 'layer_IgrejasPT_10km_novo_1',
+            pane: 'pane_IgrejasPT_10km_novo_1',
+            onEachFeature: pop_IgrejasPT_10km_novo_1,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_IgrejasPT_10km_novo_1_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_IgrejasPT_10km_novo_1);
+
+
+
+        map.addLayer(layer_IgrejasPT_10km_novo_1);
+        function pop_Hubdistance_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>Nearest Church</strong><br />' + (feature.properties['HubName'] !== null ? autolinker.link(feature.properties['HubName'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Distance (m)</th>\
+                        <td>' + (feature.properties['HubDist'] !== null ? autolinker.link(feature.properties['HubDist'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Hubdistance_2_0(feature) {
+            if (feature.properties['HubDist'] >= 5000.172180 && feature.properties['HubDist'] <= 6812.128556 ) {
+                return {
+                pane: 'pane_Hubdistance_2',
+                radius: 1.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['HubDist'] >= 6812.128556 && feature.properties['HubDist'] <= 8624.084932 ) {
+                return {
+                pane: 'pane_Hubdistance_2',
+                radius: 2.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['HubDist'] >= 8624.084932 && feature.properties['HubDist'] <= 10436.041309 ) {
+                return {
+                pane: 'pane_Hubdistance_2',
+                radius: 3.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['HubDist'] >= 10436.041309 && feature.properties['HubDist'] <= 12247.997685 ) {
+                return {
+                pane: 'pane_Hubdistance_2',
+                radius: 4.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['HubDist'] >= 12247.997685 && feature.properties['HubDist'] <= 14059.954061 ) {
+                return {
+                pane: 'pane_Hubdistance_2',
+                radius: 5.0,
+                stroke: false,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Hubdistance_2');
+        map.getPane('pane_Hubdistance_2').style.zIndex = 402;
+        map.getPane('pane_Hubdistance_2').style['mix-blend-mode'] = 'normal';
+        var layer_Hubdistance_2 = new L.geoJson(json_Hubdistance_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Hubdistance_2',
+            layerName: 'layer_Hubdistance_2',
+            pane: 'pane_Hubdistance_2',
+            onEachFeature: pop_Hubdistance_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Hubdistance_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Hubdistance_2);
+        map.addLayer(layer_Hubdistance_2);
+        function pop_Portugal_mainland_PT_census_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Portugal_mainland_PT_census_3_0() {
+            return {
+                pane: 'pane_Portugal_mainland_PT_census_3',
+                opacity: 1,
+                color: 'rgba(77,175,74,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Portugal_mainland_PT_census_3');
+        map.getPane('pane_Portugal_mainland_PT_census_3').style.zIndex = 403;
+        map.getPane('pane_Portugal_mainland_PT_census_3').style['mix-blend-mode'] = 'normal';
+        var layer_Portugal_mainland_PT_census_3 = new L.geoJson(json_Portugal_mainland_PT_census_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Portugal_mainland_PT_census_3',
+            layerName: 'layer_Portugal_mainland_PT_census_3',
+            pane: 'pane_Portugal_mainland_PT_census_3',
+            onEachFeature: pop_Portugal_mainland_PT_census_3,
+            style: style_Portugal_mainland_PT_census_3_0,
+        });
+        bounds_group.addLayer(layer_Portugal_mainland_PT_census_3);
+        map.addLayer(layer_Portugal_mainland_PT_census_3);
+        setBounds();
+        </script>
+    </body>
+</html>

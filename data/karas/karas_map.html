@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="us-ascii">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link href="https://andregis.it.na/img/favicon.ico" rel="icon" />
+	<title>1:15,000 Karas Map</title>
+	<link href="karas.css" rel="stylesheet" />
+	<script src="openseadragon/openseadragon.min.js"></script>
+	<link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+	<!-- OpenSeadragon Javascript-->
+	<script type="text/javascript">	
+		window.onload = function () {
+		var viewer = OpenSeadragon({
+			id: "seadragon-viewer",
+			prefixUrl: "openseadragon/images/",
+			tileSources: "tiles/karas.dzi",
+			showNavigator: true
+			})};
+	</script>
+</head>
+<body style="background-color: #343a40;">
+
+<main role="main">
+<div class="container">
+	<div id="seadragon-viewer" style="width:100%; height:720px; margin-left: auto; margin-right: auto;"></div>
+</div>
+</main>
+
+</body>
+</html>
