@@ -1,0 +1,22 @@
+
+body{
+    height:100vh;
+    margin:0;
+}
+#header{
+    background-color: #343a40;
+    padding: 10px;
+    text-align: center;
+}
+#logoContainer {
+    position: absolute;
+    z-index: 100;
+    cursor: move;
+    top: 0;
+    left: 100px;
+    background-color: none;
+    border: 2px solid rgba(200,200,200,0.4);
+    border-radius: 1.5em;
+    width: 384px;
+    height: 128px;
+  }

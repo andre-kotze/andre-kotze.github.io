@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="us-ascii">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="../../img/favicon.ico" rel="icon" />
+  <link href="index.css?version=2" rel="stylesheet" />
+	<title>AKO Route 2D</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+  <!--<script src="/js/leaflet-0.7.2/leaflet.ajax.min.js"></script>-->
+</head>
+
+<body>
+  
+  <div id="header">
+    <span><img src="../../img/logo.png" style="height: 80px;"></span>
+  </div>
+    <div class="container" style="height:100%">
+        <div id="map" style="height:100%;background-image: url('../../img/backg.jpg');"></div>
+    </div>
+   
+   
+</body>     
+<script language="javascript">
+    var spinal = L.tileLayer('https://{s}.tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey={apikey}', {
+        attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        apikey: 'ad0f4f73069d4a6fb733a82c1f52aff0',
+        maxZoom: 22
+    });
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    var aliDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key={apikey}', {
+        apikey: '8688727e-73f8-4e11-ba9d-0d676d65cb28',
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
+    var ali = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key={apikey}', {
+        apikey: '8688727e-73f8-4e11-ba9d-0d676d65cb28',
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
+    var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+    });
+    var darkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+    });
+
+    var map = L.map('map', {
+        center: [51.028, 10.334],
+        zoom: 5,
+        minZoom:2,
+        layers: [osm]
+    })
+    L.control.locate().addTo(map);
+    L.control.scale().addTo(map);
+    const ZoomViewer = L.Control.extend({
+		onAdd() {
+			const gauge = L.DomUtil.create('div');
+			gauge.style.width = '20px';
+			gauge.style.background = 'rgba(255,255,255,0.5)';
+			gauge.style.textAlign = 'right';
+			map.on('zoomstart zoom zoomend', (ev) => {
+				gauge.innerHTML = `${map.getZoom()}`;
+			});
+			return gauge;
+		}
+	});
+
+	const zoomViewer = (new ZoomViewer()).addTo(map);
+
+    function addGeoJSONLineLayer(data) {
+        var geoJSONLayer = L.geoJSON(data, {
+            style: {
+                "color":"blue",
+                "weight": 2
+            }
+            });
+        geoJSONLayer.addTo(map);
+    }
+    function loadGeoJSONfile(gjUrl) {
+        fetch(gjUrl)
+            .then(response => response.json())
+            .then(data => addGeoJSONLineLayer(data))
+            .catch(error => console.error('Error loading GeoJSON data:', error));
+    }
+
+
+    var baseMaps = {
+    "OpenStreetMap": osm,
+    "CartoDB Positron": positron,
+    "CartoDB Dark Matter": darkMatter,
+    "Stadia Alidade Smooth": ali,
+    "Stadia Alidade Smooth Dark": aliDark,
+    "Thunderforest Spinal Map": spinal
+    };
+
+
+    var layerControl = L.control.layers(baseMaps).addTo(map);
+    loadGeoJSONfile('../ako_route_2d/gt50000.geojson')
+    loadGeoJSONfile('../ako_route_2d/gt2500.geojson')
+    loadGeoJSONfile('../ako_route_2d/lt2500.geojson')
+
+    function trackYou() {
+        map.locate({
+            watch: true, 
+            setView: true, 
+            maxZoom: 16,
+            maximumAge: 5000,
+            enableHighAccuracy: true
+        });
+    }
+    
+    var locMarker = L.marker()
+    var accCircle = L.circle(e.latlng, radius, {
+            color: "black",
+            fillColor: 'grey',
+            fillOpacity: 0.5
+        }).addTo(map);
+    function onLocationFound(e) {
+        var radius = e.accuracy;
+
+        locMarker.setLatLng(e.latlng).addTo(map)
+            .bindPopup("Current position to " + radius + " meters");
+        accCircle.addTo(map);
+        
+    }
+    function onLocationError(e) {
+        console.error(e.message);
+    }
+
+    trackYou()
+    map.on('locationerror', onLocationError);
+    map.on('locationfound', onLocationFound);
+</script>                                                                                                                     
+</html>
