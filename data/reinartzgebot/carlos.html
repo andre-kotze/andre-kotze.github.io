@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>Das Reinartzgebot</title>
+    <link href="../data/reinartzgebot/ulm.ico" rel="icon" />
+    <link href="stylish.css?version=2" rel="stylesheet" />
+    <!-- Include the CesiumJS JavaScript and CSS files -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.106/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.106/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="header" hidden>
+        <span><img src="../data/reinartzgebot/ulm.png" style="height: 48px;padding-right: 16px;">Das
+            Reinartzgebot</span>
+    </div>
+    <div class="container" style="height:100%">
+        <div id="cesiumContainer"></div>
+    </div>
+    <div id="headerContainer"><img src="../data/reinartzgebot/das_logo.png" style="width:40%"></div>
+    <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjZmFkYTY0My1mM2E1LTQ5NjctODRiOC05MmM3M2NkYmFjMTUiLCJpZCI6MTQwNjI4LCJpYXQiOjE2ODQ3ODgxMzN9.AC9hT6lu2yQLppnxOhkBWEToPtD8qfvC9kd-mQvR5zU';
+        // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            terrainProvider: Cesium.createWorldTerrain(),
+            timeline: false,
+            animation: false
+        });
+
+        const clc_wms = "https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer"
+        var imageryLayers = viewer.imageryLayers;
+        var imageryProviderPromise = Cesium.ArcGisMapServerImageryProvider.fromUrl("https://image.discomap.eea.europa.eu/arcgis/rest/services/Corine/CLC2018_WM/MapServer")
+        //imageryLayers.addImageryProvider(provider);
+
+        async function load_wms() {
+            try {
+                const imageryProvider = await Promise.resolve(
+                    imageryProviderPromise
+                );
+
+                const layer = new Cesium.ImageryLayer(imageryProvider);
+                layer.name = name;
+                imageryLayers.add(layer);
+                return layer
+            } catch (error) {
+                console.error(
+                    `There was an error while creating ${name}. ${error}`
+                );
+            }
+        };
+        wms_layer = load_wms()
+
+        // Toggle the WMS layer on and off
+        var toggleButton = document.createElement('button');
+        toggleButton.textContent = 'Toggle WMS Layer';
+        toggleButton.onclick = function () {
+        wms_layer.show = !wms_layer.show;
+        };
+        document.body.appendChild(toggleButton);
+
+        const tracks = Cesium.GeoJsonDataSource.load('../data/reinartzgebot/tracks.geojson', { stroke: Cesium.Color.DARKSLATEGREY });
+        const color = Cesium.Color.INDIGO;
+        viewer.dataSources.add(tracks);
+        viewer.zoomTo(tracks);
+        tracks.then(function (tracks) {
+            var entities = tracks.entities.values;
+            entities.forEach(function (entity) {
+                var geometry = entity.geometry;
+                if (geometry instanceof Cesium.PolylineGeometry) {
+                    var positions = geometry.positions.getValue();
+                    var polyline = new Cesium.PolylineGraphics();
+                    polyline.positions = positions;
+                    //polyline.material = Cesium.Color.fromRandom({ 
+                    //  maximumRed : 0.25, 
+                    //  maximumGreen : 0.25, 
+                    //  maximumBlue : 0.25, 
+                    //  alpha: 1.0 });
+                    polyline.material = Cesium.ColorMaterialProperty(color) // DARKSLATEGREY, INDIGO, MAROON
+                    polyline.material.color.setValue(Cesium.Color.fromRandom({ alpha: 0.3 }));
+                    polyline.width = 2;
+                    entity.polyline = polyline;
+                }
+            });
+        });
+    </script>
+    </div>
+</body>
+
+</html>

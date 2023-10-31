@@ -4,7 +4,7 @@
   <meta charset="us-ascii">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<link href="../../img/favicon.ico" rel="icon" />
-  <link href="index.css?version=2" rel="stylesheet" />
+  <link href="index.css?version=3" rel="stylesheet" />
 	<title>AKO Route 2D</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
@@ -74,20 +74,26 @@
 
 	const zoomViewer = (new ZoomViewer()).addTo(map);
 
-    function addGeoJSONLineLayer(data) {
-        var geoJSONLayer = L.geoJSON(data, {
+    async function addGeoJSONLineLayer(data) {
+        //console.log("adding "+ data.slice(12,14))
+        var response = await fetch(data)
+        var GeoJson = await response.json()
+        //var lyrLbl = label + " Potenzial"
+        var geoJSONLayer = L.geoJSON(GeoJson, {
             style: {
-                "color":"blue",
-                "weight": 2
-            }
-            });
-        geoJSONLayer.addTo(map);
+                color: 'blue',
+                weight: 2
+            }     
+        });
+        return geoJSONLayer;
     }
-    function loadGeoJSONfile(gjUrl) {
-        fetch(gjUrl)
-            .then(response => response.json())
-            .then(data => addGeoJSONLineLayer(data))
-            .catch(error => console.error('Error loading GeoJSON data:', error));
+    async function loadGeoJSONfile(gjUrl, label, add) {
+        var gjLayer = await addGeoJSONLineLayer(gjUrl)
+        if (add) {
+            gjLayer.addTo(map)
+        }
+        layerControl.addOverlay(gjLayer, label)
+        return gjLayer
     }
 
 
@@ -102,40 +108,59 @@
 
 
     var layerControl = L.control.layers(baseMaps).addTo(map);
-    loadGeoJSONfile('../ako_route_2d/gt50000.geojson')
-    loadGeoJSONfile('../ako_route_2d/gt2500.geojson')
-    loadGeoJSONfile('../ako_route_2d/lt2500.geojson')
+    layerL = loadGeoJSONfile('../ako_route_2d/gt50000.geojson', "routesL", true)
 
-    function trackYou() {
-        map.locate({
-            watch: true, 
-            setView: true, 
-            maxZoom: 16,
-            maximumAge: 5000,
-            enableHighAccuracy: true
-        });
-    }
-    
-    var locMarker = L.marker()
-    var accCircle = L.circle(e.latlng, radius, {
-            color: "black",
-            fillColor: 'grey',
-            fillOpacity: 0.5
-        }).addTo(map);
-    function onLocationFound(e) {
-        var radius = e.accuracy;
+    // Zoom Toncrol
+    map.on("zoomend", function() {
+        var zoomlevel = map.getZoom();
+        if (zoomlevel > 6) {
+            if (!map.hasLayer(layerM)) {
+                map.addLayer(layerM);
+            } else {
+                console.log("no point layer active");
+            }
+        }
+        if (zoomlevel >= 10) {
+            if (!map.hasLayer(layerS)) {
+                map.addLayer(layerS);
+            } else {
+                console.log("no point layer active");
+            }
+        }
+    });
+    layerM = loadGeoJSONfile('../ako_route_2d/gt2500.geojson', "routesM", false)
+    layerS = loadGeoJSONfile('../ako_route_2d/lt2500.geojson', "routesS", false)
 
-        locMarker.setLatLng(e.latlng).addTo(map)
-            .bindPopup("Current position to " + radius + " meters");
-        accCircle.addTo(map);
-        
-    }
-    function onLocationError(e) {
-        console.error(e.message);
-    }
+    //function trackYou() {
+    //    map.locate({
+    //        watch: true, 
+    //        setView: true, 
+    //        maxZoom: 16,
+    //        maximumAge: 5000,
+    //        enableHighAccuracy: true
+    //    });
+    //}
+    //
+    //var locMarker = L.marker()
+    //var accCircle = L.circle(e.latlng, radius, {
+    //        color: "black",
+    //        fillColor: 'grey',
+    //        fillOpacity: 0.5
+    //    }).addTo(map);
+    //function onLocationFound(e) {
+    //    var radius = e.accuracy;
 
-    trackYou()
-    map.on('locationerror', onLocationError);
-    map.on('locationfound', onLocationFound);
+    //    locMarker.setLatLng(e.latlng).addTo(map)
+    //        .bindPopup("Current position to " + radius + " meters");
+    //    accCircle.addTo(map);
+    //    
+    //}
+    //function onLocationError(e) {
+    //    console.error(e.message);
+    //}
+
+    //trackYou()
+    //map.on('locationerror', onLocationError);
+    //map.on('locationfound', onLocationFound);
 </script>                                                                                                                     
 </html>
