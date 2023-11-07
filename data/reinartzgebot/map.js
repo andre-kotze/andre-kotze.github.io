@@ -50,10 +50,7 @@ const baseLayers = viewModel.baseLayers;
 Cesium.knockout.track(viewModel);
 
 function setupLayers() {
-    // Create all the base layers that this example will support.
-    // These base layers aren't really special.  It's possible to have multiple of them
-    // enabled at once, just like the other layers, but it doesn't make much sense because
-    // all of these layers cover the entire globe and are opaque.
+    // Create base layers!!!
     addBaseLayerOption(
         "Bing Maps Aerial",
         Cesium.createWorldImageryAsync()
@@ -107,7 +104,7 @@ function setupLayers() {
     //    })
     //);
 
-    // Create the additional layers
+    // Create additional layers, ja!!!
     addAdditionalLayerOption(
         "CORINE Land Cover 2018",
         Cesium.ArcGisMapServerImageryProvider.fromUrl(
@@ -115,7 +112,7 @@ function setupLayers() {
         )
     );
     addAdditionalLayerOption(
-        "CORINE Land Cover WMS (no use, no work)",
+        "CORINE Land Cover WMS (no use, no work!!!)",
         new Cesium.WebMapServiceImageryProvider({
             url:
                 "https://image.discomap.eea.europa.eu/arcgis/services/Corine/CLC2018_WM/MapServer/WMSServer?",
@@ -235,29 +232,48 @@ Cesium.knockout
         updateLayerList();
     });
 
-viewer.scene.globe.depthTestAgainstTerrain = true;
+styleDict = {
+    "Gewalttour 2023": Cesium.Color.MAROON,
+    "Bodensee_Koenigssee_Radweg": Cesium.Color.INDIGO,
+    "Donau": Cesium.Color.RED,
+    "Kattegattleden Helsingborg - Göteborg": Cesium.Color.GREEN,
+    "Rheinradweg": Cesium.Color.DARKSLATEGREY
+}
+
+//viewer.scene.globe.depthTestAgainstTerrain = true;
 Cesium.GeoJsonDataSource.clampToGround = true;
-const tracks = Cesium.GeoJsonDataSource.load('tracks.geojson', { stroke: Cesium.Color.DARKSLATEGREY });
-const color = Cesium.Color.INDIGO;
-viewer.dataSources.add(tracks);
+function startTripping(){
+    const promise = Cesium.GeoJsonDataSource.load('tracks5.geojson');
+    promise
+        .then(function (tracks) {
+            viewer.dataSources.add(tracks);
+            const entities = tracks.entities.values;
+            entities.forEach(function (entity) {
+                const name = entity.name;
+                const colour = styleDict[name];
+                entity.polyline.width = 5;
+                entity.polyline.material = new Cesium.PolylineOutlineMaterialProperty({
+                    color: colour,
+                    outlineWidth: 2,
+                    outlineColor: Cesium.Color.BLACK,
+                  })
+                //entity.polyline.outline = true;        
+                //entity.polyline.outlineWidth = 2;
+                //entity.polyline.outlineColor = Cesium.Color.BLACK;
+            })
+        })
+        .catch(function(error){
+            console.error("General Error")
+            window.alert(error)
+        })
+    return promise
+};
+
+viewer.camera.lookAt(
+    Cesium.Cartesian3.fromDegrees(-10.0, 48.4),
+    new Cesium.Cartesian3(0.0, -4790000.0, 3930000.0)
+);
+viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+
+tracks = startTripping();
 viewer.zoomTo(tracks);
-tracks.then(function (tracks) {
-    var entities = tracks.entities.values;
-    entities.forEach(function (entity) {
-        var geometry = entity.geometry;
-        if (geometry instanceof Cesium.PolylineGeometry) {
-            var positions = geometry.positions.getValue();
-            var polyline = new Cesium.PolylineGraphics();
-            polyline.positions = positions;
-            //polyline.material = Cesium.Color.fromRandom({ 
-            //  maximumRed : 0.25, 
-            //  maximumGreen : 0.25, 
-            //  maximumBlue : 0.25, 
-            //  alpha: 1.0 });
-            polyline.material = Cesium.ColorMaterialProperty(color) // DARKSLATEGREY, INDIGO, MAROON
-            polyline.material.color.setValue(Cesium.Color.fromRandom({ alpha: 0.3 }));
-            polyline.width = 2;
-            entity.polyline = polyline;
-        }
-    });
-});
