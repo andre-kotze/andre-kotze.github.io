@@ -76,10 +76,10 @@ function setupLayers() {
         new Cesium.OpenStreetMapImageryProvider("https://tile.opentopomap.org")
     );
     addBaseLayerOption(
-        "Stamen Map",
+        "Stamen Watercolor",
         new Cesium.OpenStreetMapImageryProvider({
-            url: "https://stamen-tiles.a.ssl.fastly.net/watercolor/",
-            fileExtension: "jpg",
+            url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
+            fileExtension: "png",
             credit:
                 "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
         })
@@ -257,9 +257,6 @@ function startTripping(){
                     outlineWidth: 2,
                     outlineColor: Cesium.Color.BLACK,
                   })
-                //entity.polyline.outline = true;        
-                //entity.polyline.outlineWidth = 2;
-                //entity.polyline.outlineColor = Cesium.Color.BLACK;
             })
         })
         .catch(function(error){
@@ -277,3 +274,31 @@ viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
 tracks = startTripping();
 viewer.zoomTo(tracks);
+
+imgCZML = [
+    {
+      id: "document",
+      name: "CZML Rectangle",
+      version: "1.0",
+    },
+    {
+    id: "textureRectangle",
+    name: "hallo hond",
+    rectangle: {
+      coordinates: {
+        wsenDegrees: [125, -60, -125, 60],
+      },
+      //height: 600000,
+      fill: true,
+      material: {
+        image: {
+          image: { uri: "hoerhond.png" },
+          color: {
+            rgba: [255, 255, 255, 196],//[255, 255, 255, 128]
+          },
+        },
+      },
+    },
+  }]
+const dataSourcePromise = Cesium.CzmlDataSource.load(imgCZML);
+viewer.dataSources.add(dataSourcePromise);
