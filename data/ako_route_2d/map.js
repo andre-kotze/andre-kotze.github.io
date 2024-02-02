@@ -50,12 +50,12 @@ var spinal = L.tileLayer('https://{s}.tile.thunderforest.com/spinal-map/{z}/{x}/
 	const zoomViewer = (new ZoomViewer()).addTo(map);
 
     styleDict = {
-        "Rail":{color: 'grey', weight: 2, dashArray: '10, 10'},
+        "Rail":{color: 'darkred', weight: 2},
         "Road":{color: 'red', weight: 2},
-        "Ferries":{color: 'orange', weight: 2, dashArray: '20, 10'},
+        "Ferries":{color: 'orange', weight: 2, dashArray: '12, 4'},
         "Tracks (long)":{color: 'red', weight: 2},
         "Tracks (short)":{color: 'red', weight: 2},
-        "Flights":{color: 'green', weight: 2, opacity: 0.4, dashArray: '10, 10'}
+        "Flights":{color: 'green', weight: 2, opacity: 0.4, dashArray: '10, 6'}
     }
 
     async function addGeoJSONLineLayer(data, style) {
