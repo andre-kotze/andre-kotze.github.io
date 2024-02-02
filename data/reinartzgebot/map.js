@@ -6,6 +6,10 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
     timeline: false,
     animation: false
 });
+const scene = viewer.scene;
+const globe = scene.globe;
+globe.terrainExaggeration = 2.0;
+
 var imageryLayers = viewer.imageryLayers;
 
 const viewModel = {
@@ -44,6 +48,7 @@ const viewModel = {
     canLower: function (layerIndex) {
         return layerIndex >= 0 && layerIndex < imageryLayers.length - 1;
     },
+    exaggeration: globe.terrainExaggeration,
 };
 const baseLayers = viewModel.baseLayers;
 
@@ -77,12 +82,12 @@ function setupLayers() {
     );
     addBaseLayerOption(
         "Stamen Watercolor",
-        new Cesium.OpenStreetMapImageryProvider({
-            url: "https://tiles.stadiamaps.com/tiles/stamen_watercolor/",
-            fileExtension: "png",
-            credit:
-                "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
-        })
+        Cesium.TileMapServiceImageryProvider.fromUrl(
+            Cesium.buildModuleUrl("https://tiles.stadiamaps.com/tiles/stamen_watercolor")
+            //maxZoom: 20,
+            //credit:
+            //    "Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under CC BY SA.",
+        )
     );
     addBaseLayerOption(
         "Natural Earth II (local)",
@@ -195,7 +200,6 @@ async function addAdditionalLayerOption(
     }
 }
 
-
 function updateLayerList() {
     const numLayers = imageryLayers.length;
     viewModel.layers.splice(0, viewModel.layers.length);
@@ -230,6 +234,7 @@ Cesium.knockout
         baseLayer.show = show;
         baseLayer.alpha = alpha;
         updateLayerList();
+        globe.terrainExaggeration = Number(viewModel.exaggeration);
     });
 
 styleDict = {
